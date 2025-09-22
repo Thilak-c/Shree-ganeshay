@@ -445,10 +445,10 @@ export default function CardGenerator() {
                 placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                 onChange={handleChange}
                 value={data[field]}
-                className="w-full border rounded-lg p-2 text-sm"
+                className="w-full border  rounded-lg p-2 text-sm"
               />
             ))}
-            <div className="flex gap-2">
+            <div className="flex text-gray-600 gap-2">
               <input type="date" name="validFrom" value={data.validFrom} onChange={handleChange} className="border p-2 rounded-lg w-full"/>
               <input type="date" name="validTo" value={data.validTo} onChange={handleChange} className="border p-2 rounded-lg w-full"/>
             </div>
