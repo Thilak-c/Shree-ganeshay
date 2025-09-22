@@ -445,7 +445,7 @@ export default function CardGenerator() {
                 placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                 onChange={handleChange}
                 value={data[field]}
-                className="w-full border  rounded-lg p-2 text-sm"
+                className="w-full border text-gray-600 rounded-lg p-2 text-sm"
               />
             ))}
             <div className="flex text-gray-600 gap-2">
