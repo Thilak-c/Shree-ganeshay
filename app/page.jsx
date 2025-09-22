@@ -453,8 +453,8 @@ export default function CardGenerator() {
               <input type="date" name="validTo" value={data.validTo} onChange={handleChange} className="border p-2 rounded-lg w-full"/>
             </div>
             <div className="flex gap-4">
-              <button onClick={()=>setSide("front")} className={`px-4 py-2 rounded ${side==="front"?"bg-blue-600 text-white":"bg-gray-200"}`}>Front</button>
-              <button onClick={()=>setSide("back")} className={`px-4 py-2 rounded ${side==="back"?"bg-blue-600 text-white":"bg-gray-200"}`}>Back</button>
+              <button onClick={()=>setSide("front")} className={`px-4 py-2 rounded ${side==="front"?"bg-blue-600 text-white":"bg-gray-400"}`}>Front</button>
+              <button onClick={()=>setSide("back")} className={`px-4 py-2 rounded ${side==="back"?"bg-blue-600 text-white":"bg-gray-400"}`}>Back</button>
             </div>
             <button onClick={downloadCard} className="px-6 py-3 bg-green-600 text-white rounded-xl w-full mt-4 shadow-md">
               Download {side.charAt(0).toUpperCase()+side.slice(1)}
