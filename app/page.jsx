@@ -22,7 +22,7 @@ export default function CardGenerator() {
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const cardRef = useRef(null);
 
-  const addCard = useMutation("cards:addCard"); // adjust path as needed
+  const addCard = useMutation("cards:addCard");
 
   const generateShortId = () =>
     Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -49,7 +49,15 @@ export default function CardGenerator() {
       if (!data.id) return;
       try {
         const url = `https://shree-ganeshay.vercel.app/c/${data.id}`;
-        const d = await QRCode.toDataURL(url, { width: 300, margin: 1 });
+        const d = await QRCode.toDataURL(url, { 
+          width: 400, 
+          margin: 2,
+          color: {
+            dark: '#1f2937',
+            light: '#ffffff'
+          },
+          errorCorrectionLevel: 'H'
+        });
         setQrDataUrl(d);
       } catch (err) {
         console.error("QR generation failed:", err);
@@ -73,12 +81,21 @@ export default function CardGenerator() {
     });
 
   const drawBackText = (ctx, drawQr = true, qrImage = null) => {
-    if (drawQr && qrImage) ctx.drawImage(qrImage, 20, 200, 80, 80);
+    // Professional styling constants
+    const cardPadding = 80;
+    const fieldSpacing = 42;
+    const labelFontSize = "10px";
+    const valueFontSize = "14px";
+    const qrSize = 90;
+    
+    // QR code positioned at bottom right with proper margins
+    if (drawQr && qrImage) {
+      ctx.drawImage(qrImage, 500 - qrSize - 30, 300 - qrSize - 30, qrSize, qrSize);
+    }
 
-    const startX = 60,
-      startY = 60,
-      columnWidth = 180,
-      lineHeight = 35;
+    // Text area dimensions (accounting for QR space)
+    const textAreaWidth = 500 - qrSize - 80; // Leave space for QR
+    const columnWidth = (textAreaWidth - 40) / 2;
 
     const leftFields = [
       { label: "PATIENT NAME", value: data.patient },
@@ -91,51 +108,95 @@ export default function CardGenerator() {
       { label: "DOCTOR", value: data.doctor },
       { label: "DOCTOR MOBILE", value: data.doctorMobile },
       { label: "LAB NAME", value: data.lab },
-      { label: "LAB MOBILE", value: data.labMobile },
+      // { label: "LAB MOBILE", value: data.labMobile },
     ];
 
+    // Draw left column
     leftFields.forEach((f, i) => {
-      const y = startY + i * lineHeight;
+      const x = cardPadding;
+      const y = 60 + i * fieldSpacing;
+      
+      // Label
       ctx.fillStyle = "#6b7280";
-      ctx.font = "8px Arial";
-      ctx.fillText(f.label, startX, y);
+      ctx.font = `${labelFontSize} "Segoe UI", Arial, sans-serif`;
+      ctx.letterSpacing = "0.5px";
+      ctx.fillText(f.label.toUpperCase(), x, y);
 
-      ctx.strokeStyle = "rgba(0,0,0,0.3)";
-      ctx.lineWidth = 0.5;
+      // Underline
+      ctx.strokeStyle = "#d1d5db";
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(startX, y + 3);
-      ctx.lineTo(startX + 160, y + 3);
+      ctx.moveTo(x, y + 5);
+      ctx.lineTo(x + columnWidth, y + 5);
       ctx.stroke();
 
+      // Value
       ctx.fillStyle = "#111827";
-      ctx.font = "bold 11px Arial";
-      ctx.fillText(f.value || "-", startX, y + 18);
+      ctx.font = `bold ${valueFontSize} "Segoe UI", Arial, sans-serif`;
+      ctx.letterSpacing = "0px";
+      const valueText = f.value || "-";
+      // Truncate if too long
+      const maxWidth = columnWidth - 10;
+      let displayText = valueText;
+      if (ctx.measureText(valueText).width > maxWidth) {
+        while (ctx.measureText(displayText + "...").width > maxWidth && displayText.length > 0) {
+          displayText = displayText.slice(0, -1);
+        }
+        displayText += "...";
+      }
+      ctx.fillText(displayText, x, y + 20);
     });
 
+    // Draw right column
     rightFields.forEach((f, i) => {
-      const x = startX + columnWidth,
-        y = startY + i * lineHeight;
+      const x = cardPadding + columnWidth + 40;
+      const y = 60 + i * fieldSpacing;
+      
+      // Label
       ctx.fillStyle = "#6b7280";
-      ctx.font = "8px Arial";
-      ctx.fillText(f.label, x, y);
+      ctx.font = `${labelFontSize} "Segoe UI", Arial, sans-serif`;
+      ctx.letterSpacing = "0.5px";
+      ctx.fillText(f.label.toUpperCase(), x, y);
 
-      ctx.strokeStyle = "rgba(0,0,0,0.3)";
-      ctx.lineWidth = 0.5;
+      // Underline
+      ctx.strokeStyle = "#d1d5db";
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(x, y + 3);
-      ctx.lineTo(x + 160, y + 3);
+      ctx.moveTo(x, y + 5);
+      ctx.lineTo(x + columnWidth, y + 5);
       ctx.stroke();
 
+      // Value
       ctx.fillStyle = "#111827";
-      ctx.font = "bold 11px Arial";
-      ctx.fillText(f.value || "-", x, y + 18);
+      ctx.font = `bold ${valueFontSize} "Segoe UI", Arial, sans-serif`;
+      ctx.letterSpacing = "0px";
+      const valueText = f.value || "-";
+      // Truncate if too long
+      const maxWidth = columnWidth - 10;
+      let displayText = valueText;
+      if (ctx.measureText(valueText).width > maxWidth) {
+        while (ctx.measureText(displayText + "...").width > maxWidth && displayText.length > 0) {
+          displayText = displayText.slice(0, -1);
+        }
+        displayText += "...";
+      }
+      ctx.fillText(displayText, x, y + 20);
     });
+
+    // Add QR label
+    if (drawQr) {
+      ctx.fillStyle = "#6b7280";
+      ctx.font = "9px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("SCAN FOR DETAILS", 500 - qrSize/2 - 30, 300 - 10);
+      ctx.textAlign = "left"; // Reset alignment
+    }
   };
 
   const handleSave = async () => {
     try {
       await addCard({
-        CardId:data.id,
+        CardId: data.id,
         patient: data.patient,
         doctor: data.doctor,
         lab: data.lab,
@@ -157,7 +218,7 @@ export default function CardGenerator() {
 
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-      const scale = 3;
+      const scale = 4; // Higher resolution for professional quality
       canvas.width = 500 * scale;
       canvas.height = 300 * scale;
       ctx.scale(scale, scale);
@@ -167,12 +228,21 @@ export default function CardGenerator() {
           const bg = await loadImage("/card-front-Shree-ganeshay.png");
           ctx.drawImage(bg, 0, 0, 500, 300);
         } catch {
-          ctx.fillStyle = "#667eea";
+          // Professional gradient fallback
+          const gradient = ctx.createLinearGradient(0, 0, 500, 300);
+          gradient.addColorStop(0, "#1e40af");
+          gradient.addColorStop(1, "#3b82f6");
+          ctx.fillStyle = gradient;
           ctx.fillRect(0, 0, 500, 300);
+          
+          // Add company branding
           ctx.fillStyle = "white";
-          ctx.font = "bold 24px Arial";
+          ctx.font = "bold 28px Arial";
           ctx.textAlign = "center";
-          ctx.fillText("Medical Card", 250, 150);
+          ctx.fillText("MEDICAL WARRANTY CARD", 250, 130);
+          ctx.font = "16px Arial";
+          ctx.fillText("Professional Healthcare Services", 250, 160);
+          ctx.textAlign = "left";
         }
       } else {
         try {
@@ -180,19 +250,30 @@ export default function CardGenerator() {
           ctx.drawImage(bg, 0, 0, 500, 300);
 
           const qrImg = await loadImage(
-            qrDataUrl || (await QRCode.toDataURL(`https://shree-ganeshay.vercel.app/c/${data.id}`, { width: 120, margin: 1 }))
+            qrDataUrl || (await QRCode.toDataURL(`https://shree-ganeshay.vercel.app/c/${data.id}`, { 
+              width: 360, 
+              margin: 2,
+              errorCorrectionLevel: 'H'
+            }))
           );
 
           drawBackText(ctx, true, qrImg);
         } catch {
-          const gradient = ctx.createLinearGradient(0, 0, 500, 300);
-          gradient.addColorStop(0, "#f093fb");
-          gradient.addColorStop(1, "#f5576c");
-          ctx.fillStyle = gradient;
+          // Professional background
+          ctx.fillStyle = "#f8fafc";
           ctx.fillRect(0, 0, 500, 300);
+          
+          // Add subtle border
+          ctx.strokeStyle = "#e2e8f0";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(1, 1, 498, 298);
 
           const qrImg = await loadImage(
-            qrDataUrl || (await QRCode.toDataURL(`https://shree-ganeshay.vercel.app/c/${data.id}`, { width: 120, margin: 1 }))
+            qrDataUrl || (await QRCode.toDataURL(`https://shree-ganeshay.vercel.app/c/${data.id}`, { 
+              width: 360, 
+              margin: 2,
+              errorCorrectionLevel: 'H'
+            }))
           );
           drawBackText(ctx, true, qrImg);
         }
@@ -213,190 +294,226 @@ export default function CardGenerator() {
   return (
     <div>
       {showDetailsPage ? (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">
-                  Warranty Card Details
-                </h1>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl p-10">
+              <div className="flex justify-between items-center mb-10">
+                <div>
+                  <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                    Medical Warranty Card
+                  </h1>
+                  <p className="text-gray-600">Professional Healthcare Documentation</p>
+                </div>
                 {!urlParams && (
                   <button
                     onClick={() => setShowDetailsPage(false)}
-                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                    className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                   >
-                    Back to Generator
+                    ← Back to Generator
                   </button>
                 )}
                 {urlParams && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => window.print()}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      Print Warranty
+                      🖨️ Print
                     </button>
                     <button
                       onClick={() => window.close()}
-                      className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                      className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                     >
-                      Close
+                      ✕ Close
                     </button>
                   </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <h2 className="text-xl font-semibold text-gray-700 border-b-2 border-blue-200 pb-2">
-                    Customer Information
-                  </h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="space-y-8">
+                  <div className="border-l-4 border-blue-500 pl-6">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                      Patient Information
+                    </h2>
 
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide">
-                        Customer Name
-                      </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded-lg border">
-                        <span className="text-lg font-semibold text-gray-800">
-                          {getDisplayData().patient}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide">
-                        Case ID
-                      </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded-lg border">
-                        <span className="text-lg font-semibold text-gray-800">
-                          {getDisplayData().caseId}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide">
-                          Valid From
+                        <label className="block text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                          Patient Name
                         </label>
-                        <div className="mt-1 p-3 bg-gray-50 rounded-lg border">
-                          <span className="text-lg font-semibold text-gray-800">
-                            {getDisplayData().validFrom}
+                        <div className="p-4 bg-gray-50 rounded-xl border-2 border-gray-100">
+                          <span className="text-xl font-bold text-gray-900">
+                            {getDisplayData().patient || "Not specified"}
                           </span>
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide">
-                          Valid To
+                        <label className="block text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                          Case ID
                         </label>
-                        <div className="mt-1 p-3 bg-gray-50 rounded-lg border">
-                          <span className="text-lg font-semibold text-gray-800">
-                            {getDisplayData().validTo}
+                        <div className="p-4 bg-gray-50 rounded-xl border-2 border-gray-100">
+                          <span className="text-xl font-mono font-bold text-blue-800">
+                            {getDisplayData().caseId || "Not assigned"}
                           </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                            Valid From
+                          </label>
+                          <div className="p-4 bg-green-50 rounded-xl border-2 border-green-100">
+                            <span className="text-lg font-bold text-green-800">
+                              {getDisplayData().validFrom || "Not set"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                            Valid To
+                          </label>
+                          <div className="p-4 bg-red-50 rounded-xl border-2 border-red-100">
+                            <span className="text-lg font-bold text-red-800">
+                              {getDisplayData().validTo || "Not set"}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  <h2 className="text-xl font-semibold text-gray-700 border-b-2 border-green-200 pb-2">
-                    Warranty Information
-                  </h2>
+                <div className="space-y-8">
+                  <div className="border-l-4 border-green-500 pl-6">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                      Healthcare Provider Details
+                    </h2>
 
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide">
-                        Doctor
-                      </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded-lg border">
-                        <span className="text-lg font-semibold text-gray-800">
-                          {getDisplayData().doctor}
-                        </span>
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                          Attending Doctor
+                        </label>
+                        <div className="p-4 bg-gray-50 rounded-xl border-2 border-gray-100">
+                          <span className="text-xl font-bold text-gray-900">
+                            {getDisplayData().doctor || "Not assigned"}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide">
-                        Doctor Mobile
-                      </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded-lg border">
-                        <span className="text-lg font-semibold text-gray-800">
-                          {getDisplayData().doctorMobile}
-                        </span>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                          Doctor Contact
+                        </label>
+                        <div className="p-4 bg-blue-50 rounded-xl border-2 border-blue-100">
+                          <span className="text-lg font-mono font-bold text-blue-800">
+                            {getDisplayData().doctorMobile || "Not provided"}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide">
-                        Lab Name
-                      </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded-lg border">
-                        <span className="text-lg font-semibold text-gray-800">
-                          {getDisplayData().lab}
-                        </span>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                          Laboratory
+                        </label>
+                        <div className="p-4 bg-gray-50 rounded-xl border-2 border-gray-100">
+                          <span className="text-xl font-bold text-gray-900">
+                            {getDisplayData().lab || "Not specified"}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide">
-                        Lab Mobile
-                      </label>
-                      <div className="mt-1 p-3 bg-gray-50 rounded-lg border">
-                        <span className="text-lg font-semibold text-gray-800">
-                          {getDisplayData().labMobile}
-                        </span>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                          Lab Contact
+                        </label>
+                        <div className="p-4 bg-purple-50 rounded-xl border-2 border-purple-100">
+                          <span className="text-lg font-mono font-bold text-purple-800">
+                            {getDisplayData().labMobile || "Not provided"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8 pt-8 border-t-2 border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-700 mb-4">
-                  Warranty Card Preview
+              <div className="mt-12 pt-8 border-t-2 border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+                  Digital Warranty Card Preview
                 </h2>
                 <div className="flex justify-center">
-                  <div className="relative w-[400px] h-[240px] rounded-xl shadow-2xl overflow-hidden bg-white">
+                  <div className="relative w-[500px] h-[300px] rounded-2xl shadow-2xl overflow-hidden bg-white border-4 border-gray-200">
                     <img
                       src="/card-back-Shree-ganeshay.png"
                       alt="Card Back"
                       className="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div className="absolute bottom-4 left-4">
-                      {/* use the same real QR dataURL for preview */}
+                    
+                    {/* QR Code - Professional positioning */}
+                    <div className="absolute bottom-8 right-8 bg-white p-2 rounded-lg shadow-lg">
                       {qrDataUrl ? (
-                        <img
-                          src={qrDataUrl}
-                          alt="QR Code"
-                          style={{ width: 60, height: 60 }}
-                          className="rounded border-2 border-white shadow-md"
-                        />
+                        <div className="text-center">
+                          <img
+                            src={qrDataUrl}
+                            alt="QR Code"
+                            style={{ width: 80, height: 80 }}
+                            className="rounded"
+                          />
+                          <p className="text-[8px] text-gray-600 mt-1 font-semibold">SCAN FOR DETAILS</p>
+                        </div>
                       ) : (
-                        <div className="w-[60px] h-[60px] bg-gray-200 rounded" />
+                        <div className="w-[80px] h-[80px] bg-gray-200 rounded animate-pulse" />
                       )}
                     </div>
-                    <div className="absolute top-6 right-6 w-[85%] p-3 bg-transparent rounded-lg text-gray-900">
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                        <div>
-                          <p className="text-[8px] uppercase text-gray-500">
-                            Customer Name
-                          </p>
-                          <div className="h-0.5 bg-black/30"></div>
-                          <p className="font-semibold text-sm">
-                            {getDisplayData().patient}
-                          </p>
+                    
+                    {/* Professional field layout */}
+                    <div className="absolute top-10 left-10 w-[60%] p-4 bg-white/90 backdrop-blur-sm rounded-xl border border-white/50">
+                      <div className="grid grid-cols-2 gap-6 text-xs">
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-[9px] uppercase text-gray-500 font-semibold tracking-wide">
+                              Patient Name
+                            </p>
+                            <div className="h-px bg-gray-300 my-1"></div>
+                            <p className="font-bold text-sm text-gray-900">
+                              {getDisplayData().patient || "Not specified"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] uppercase text-gray-500 font-semibold tracking-wide">
+                              Case ID
+                            </p>
+                            <div className="h-px bg-gray-300 my-1"></div>
+                            <p className="font-mono font-bold text-sm text-blue-800">
+                              {getDisplayData().caseId || "Not assigned"}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-[8px] uppercase text-gray-500">
-                            Doctor
-                          </p>
-                          <div className="h-0.5 bg-black/30"></div>
-                          <p className="font-semibold text-sm">
-                            {getDisplayData().doctor}
-                          </p>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-[9px] uppercase text-gray-500 font-semibold tracking-wide">
+                              Doctor
+                            </p>
+                            <div className="h-px bg-gray-300 my-1"></div>
+                            <p className="font-bold text-sm text-gray-900">
+                              {getDisplayData().doctor || "Not assigned"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[9px] uppercase text-gray-500 font-semibold tracking-wide">
+                              Lab
+                            </p>
+                            <div className="h-px bg-gray-300 my-1"></div>
+                            <p className="font-bold text-sm text-gray-900">
+                              {getDisplayData().lab || "Not specified"}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -407,142 +524,185 @@ export default function CardGenerator() {
           </div>
         </div>
       ) : (
-        <div className="flex min-h-screen bg-gray-100 p-8 gap-10">
-          <div className="w-1/3 bg-white shadow-lg p-6 rounded-2xl space-y-4">
-            <h2 className="text-2xl font-bold text-gray-700">
-              Warranty Card Details
-            </h2>
-            {[
-              "patient",
-              "doctor",
-              "lab",
-              "caseId",
-              "doctorMobile",
-              "labMobile",
-            ].map((field) => (
-              <input
-                key={field}
-                name={field}
-                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                onChange={handleChange}
-                value={data[field]}
-                className="w-full border text-gray-600 rounded-lg p-2 text-sm"
-              />
-            ))}
-            <div className="flex text-gray-600 gap-2">
-              <input
-                type="date"
-                name="validFrom"
-                value={data.validFrom}
-                onChange={handleChange}
-                className="border p-2 rounded-lg w-full"
-              />
-              <input
-                type="date"
-                name="validTo"
-                value={data.validTo}
-                onChange={handleChange}
-                className="border p-2 rounded-lg w-full"
-              />
+        <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 p-8 gap-12">
+          <div className="w-1/3 bg-white shadow-2xl p-8 rounded-3xl space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                Card Generator
+              </h2>
+              <p className="text-gray-600">Professional Medical Warranty Cards</p>
             </div>
-            <div className="flex gap-4">
+            
+            {[
+              { key: "patient", label: "Patient Name", icon: "👤" },
+              { key: "doctor", label: "Doctor", icon: "👨‍⚕️" },
+              { key: "lab", label: "Laboratory", icon: "🏥" },
+              { key: "caseId", label: "Case ID", icon: "📋" },
+              { key: "doctorMobile", label: "Doctor Mobile", icon: "📞" },
+              { key: "labMobile", label: "Lab Mobile", icon: "☎️" },
+            ].map(({ key, label, icon }) => (
+              <div key={key} className="group">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <span>{icon}</span>
+                  {label}
+                </label>
+                <input
+                  name={key}
+                  placeholder={`Enter ${label.toLowerCase()}...`}
+                  onChange={handleChange}
+                  value={data[key]}
+                  className="w-full border-2 border-gray-200 text-gray-700 rounded-xl p-4 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 group-hover:border-gray-300"
+                />
+              </div>
+            ))}
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <span>📅</span>
+                  Valid From
+                </label>
+                <input
+                  type="date"
+                  name="validFrom"
+                  value={data.validFrom}
+                  onChange={handleChange}
+                  className="w-full border-2 border-gray-200 text-gray-800 p-4 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                  <span>📅</span>
+                  Valid To
+                </label>
+                <input 
+                  type="date"
+                  name="validTo"
+                  value={data.validTo}
+                  onChange={handleChange}
+                  className="w-full border-2 text-gray-800  border-gray-200 p-4 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-4 pt-4">
               <button
                 onClick={() => setSide("front")}
-                className={`px-4 py-2 rounded ${
-                  side === "front" ? "bg-blue-600 text-white" : "bg-gray-400"
+                className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
+                  side === "front" 
+                    ? "bg-blue-600 text-white shadow-lg" 
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
-                Front
+                🎭 Front
               </button>
               <button
                 onClick={() => setSide("back")}
-                className={`px-4 py-2 rounded ${
-                  side === "back" ? "bg-blue-600 text-white" : "bg-gray-400"
+                className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
+                  side === "back" 
+                    ? "bg-blue-600 text-white shadow-lg" 
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
-                Back
+                📄 Back
               </button>
             </div>
+            
             <button
               onClick={downloadCard}
-              className="px-6 py-3 bg-green-600 text-white rounded-xl w-full mt-4 shadow-md"
+              className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold text-lg shadow-xl hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-200"
             >
-              Download {side.charAt(0).toUpperCase() + side.slice(1)}
+              💾 Download {side.charAt(0).toUpperCase() + side.slice(1)}
             </button>
           </div>
 
           <div className="flex-1 flex items-center justify-center">
             <div
               ref={cardRef}
-              className="relative w-[500px] h-[300px] rounded-xl shadow-2xl overflow-hidden bg-white"
+              className="relative w-[500px] h-[300px] rounded-2xl shadow-2xl overflow-hidden bg-white border-4 border-gray-300 transform hover:scale-105 transition-transform duration-300"
             >
               {side === "front" ? (
-                <div>
+                <div className="relative">
                   <img
                     src="/card-front-Shree-ganeshay.png"
                     alt="Card Front"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
+                  {/* Fallback if image doesn't load */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <h3 className="text-3xl font-bold mb-2">MEDICAL CARD</h3>
+                      <p className="text-lg opacity-90">Professional Healthcare</p>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div>
-                  <div className="absolute text-center text-gray-400 bottom-6 left-8">
-                    {/* preview uses same QR dataURL */}
+                <div className="relative bg-gradient-to-br from-gray-50 to-white">
+                  {/* Background pattern */}
+                  <div className="absolute inset-0 opacity-5">
+                    <div className="w-full h-full" style={{
+                      backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.15) 1px, transparent 0)',
+                      backgroundSize: '20px 20px'
+                    }}></div>
+                  </div>
+                  
+                  {/* QR Code - Professional positioning */}
+                  <div className="absolute bottom-8 right-8 bg-white p-3 rounded-lg shadow-xl border-2 border-gray-200">
                     {qrDataUrl ? (
-                      <>
-                      <img
-                        src={qrDataUrl}
-                        alt="QR Code"
-                        width={70}
-                        height={70}
-                        className="rounded border-2 border-white"
+                      <div className="text-center">
+                        <img
+                          src={qrDataUrl}
+                          alt="QR Code"
+                          width={85}
+                          height={85}
+                          className="rounded"
                         />
-                        <p className="text-[10px]">Scan For Details</p>
-                        </>
+                        <p className="text-[9px] text-gray-600 mt-2 font-semibold tracking-wide">SCAN FOR DETAILS</p>
+                      </div>
                     ) : (
-                      <div className="w-[70px] h-[70px] bg-gray-200 rounded" />
+                      <div className="w-[85px] h-[85px] bg-gray-200 rounded animate-pulse" />
                     )}
                   </div>
 
-                  <div className="absolute top-8 right-8 w-[90%] p-4 bg-transparent rounded-lg text-gray-900">
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-5">
-                      <div className="flex-col gap-y-6">
-                        <p className="text-[10px] uppercase text-gray-500">
-                          Patient Name
-                        </p>
-                        <div className="h-0.5 bg-black/30"></div>
-                        <p className="font-semibold">{data.patient}</p>
-
-                        <p className="mt-2 text-[10px] uppercase text-gray-500">
-                          Case ID
-                        </p>
-                        <div className="h-0.5 bg-black/30"></div>
-                        <p className="font-semibold">{data.caseId}</p>
-
-                        <p className="mt-2 text-[10px] uppercase text-gray-500">
-                          Valid From
-                        </p>
-                        <div className="h-0.5 bg-black/30"></div>
-                        <p className="font-semibold">{data.validFrom}</p>
+                  {/* Professional field layout */}
+                  <div className="absolute top-10 left-10 w-[65%] p-6">
+                    <div className="grid grid-cols-2 gap-8">
+                      <div className="space-y-6">
+                        {[
+                          { label: "PATIENT NAME", value: data.patient },
+                          { label: "CASE ID", value: data.caseId },
+                          { label: "VALID FROM", value: data.validFrom },
+                          { label: "VALID TO", value: data.validTo }
+                        ].map((field, i) => (
+                          <div key={i} className="group">
+                            <p className="text-[10px] uppercase text-gray-500 font-bold tracking-wider mb-1">
+                              {field.label}
+                            </p>
+                            <div className="h-px bg-gradient-to-r from-gray-400 to-transparent mb-2 group-hover:from-blue-500 transition-colors"></div>
+                            <p className="font-bold text-sm text-gray-900 min-h-[20px]">
+                              {field.value || "-"}
+                            </p>
+                          </div>
+                        ))}
                       </div>
 
-                      <div>
-                        <p className="text-[10px] uppercase text-gray-500">Doctor</p>
-                        <div className="h-0.5 bg-black/30"></div>
-                        <p className="font-semibold">{data.doctor}</p>
-
-                        <p className="mt-2 text-[10px] uppercase text-gray-500">
-                          Doctor Mobile
-                        </p>
-
-                        <div className="h-0.5 bg-black/30"></div>
-                        <p className="font-semibold">{data.doctorMobile}</p>
-
-                        <p className="mt-2 text-[10px] uppercase text-gray-500">
-                          Valid To
-                        </p>
-                        <div className="h-0.5 bg-black/30"></div>
-                        <p className="font-semibold">{data.validTo}</p>
+                      <div className="space-y-6">
+                        {[
+                          { label: "DOCTOR", value: data.doctor },
+                          { label: "DOCTOR MOBILE", value: data.doctorMobile },
+                          { label: "LAB NAME", value: data.lab },
+                          { label: "LAB MOBILE", value: data.labMobile }
+                        ].map((field, i) => (
+                          <div key={i} className="group">
+                            <p className="text-[10px] uppercase text-gray-500 font-bold tracking-wider mb-1">
+                              {field.label}
+                            </p>
+                            <div className="h-px bg-gradient-to-r from-gray-400 to-transparent mb-2 group-hover:from-green-500 transition-colors"></div>
+                            <p className="font-bold text-sm text-gray-900 min-h-[20px]">
+                              {field.value || "-"}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
