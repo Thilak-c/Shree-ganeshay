@@ -489,13 +489,16 @@ export default function CardGenerator() {
                   <div className="absolute text-center text-gray-400 bottom-6 left-8">
                     {/* preview uses same QR dataURL */}
                     {qrDataUrl ? (
+                      <>
                       <img
                         src={qrDataUrl}
                         alt="QR Code"
                         width={70}
                         height={70}
                         className="rounded border-2 border-white"
-                      />
+                        />
+                        <p className="text-[10px]">Scan For Details</p>
+                        </>
                     ) : (
                       <div className="w-[70px] h-[70px] bg-gray-200 rounded" />
                     )}
