@@ -200,8 +200,11 @@ export default function CardPublicPage() {
           </div>
         </div>
 
-        {/* Footer */}
-       
+      {/* Footer */}
+<footer className="text-center mt-10 py-4 text-sm text-gray-500 border-t">
+  *Terms and conditions apply*
+</footer>
+
       </div>
     </div>
   );
