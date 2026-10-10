@@ -1,8 +1,6 @@
-"use client";
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ConvexReactClient, ConvexProvider } from "convex/react";
+import ConvexClientProvider from "./ConvexClientProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,9 +12,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
-
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL);
+export const metadata = {
+  title: "Shree Ganeshay Dental Clinic",
+  description: "Dental Clinic Card Generator & Management",
+};
 
 export default function RootLayout({ children }) {
   return (
@@ -24,13 +23,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         <ConvexProvider client={convex}>
-
-
-        {children}
-
-         </ConvexProvider>
+        <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>
   );
 }
+

@@ -27,11 +27,17 @@ export const addCard = mutation({
     return await db.insert("cards", args);
   },
 });
-// Add this to convex/cards.js
-// Add this to your existing convex/cards.js file
+
 export const getAllCards = query({
   args: {},
   handler: async ({ db }) => {
-    return await db.query("cards").collect();
+    return await db.query("cards").order("desc").collect();
+  },
+});
+
+export const deleteCard = mutation({
+  args: { id: v.id("cards") },
+  handler: async ({ db }, { id }) => {
+    return await db.delete(id);
   },
 });

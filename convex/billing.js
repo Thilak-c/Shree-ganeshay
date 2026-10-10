@@ -45,3 +45,10 @@ export const updateBillStatus = mutation({
     return await db.patch(id, { status });
   },
 });
+
+export const deleteBill = mutation({
+  args: { id: v.id("bills") },
+  handler: async ({ db }, { id }) => {
+    return await db.delete(id);
+  },
+});
