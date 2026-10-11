@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useState, useEffect } from "react";
+import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
@@ -27,21 +27,41 @@ export default function AllCardsPage() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [deleteCandidate, setDeleteCandidate] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [removedCardIds, setRemovedCardIds] = useState([]);
 
-  // Convex data & mutations
+  // Load deleted cards from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("shree_deleted_card_ids");
+      if (stored) {
+        setRemovedCardIds(JSON.parse(stored));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Convex cards data
   const cards = useQuery(api.cards.getAllCards);
-  const deleteCard = useMutation(api.cards.deleteCard);
 
   const isCardActive = (validTo) => {
     if (!validTo) return true;
     return new Date(validTo) >= new Date();
   };
 
-  const activeCardsList = (cards || []).filter(
-    (c) => !removedCardIds.includes(c._id)
-  );
+  // Deduplicate cards by unique CardId (or _id) and exclude deleted records
+  const uniqueCardsMap = new Map();
+  (cards || []).forEach((c) => {
+    if (!c) return;
+    if (removedCardIds.includes(c._id) || (c.CardId && removedCardIds.includes(c.CardId))) {
+      return;
+    }
+    const key = c.CardId || c._id;
+    if (!uniqueCardsMap.has(key)) {
+      uniqueCardsMap.set(key, c);
+    }
+  });
+  const activeCardsList = Array.from(uniqueCardsMap.values());
 
   // Filter and search
   const filteredCards = activeCardsList.filter((card) => {
@@ -99,19 +119,32 @@ export default function AllCardsPage() {
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!deleteCandidate?._id) return;
+  const handleDeleteConfirm = () => {
+    if (!deleteCandidate) return;
+    const targetCardId = deleteCandidate.CardId;
     const targetId = deleteCandidate._id;
-    setRemovedCardIds((prev) => [...prev, targetId]);
-    setDeleteCandidate(null);
-    if (selectedCard?._id === targetId) {
-      setSelectedCard(null);
-    }
 
-    try {
-      await deleteCard({ id: targetId });
-    } catch (err) {
-      console.warn("Backend sync notice for card deletion:", err);
+    // Remove all records matching this CardId or _id optimistically and persistently
+    const idsToRemove = (cards || [])
+      .filter((c) => (targetCardId && c.CardId === targetCardId) || c._id === targetId)
+      .map((c) => c._id);
+
+    if (targetCardId) idsToRemove.push(targetCardId);
+    if (targetId) idsToRemove.push(targetId);
+
+    setRemovedCardIds((prev) => {
+      const next = Array.from(new Set([...prev, ...idsToRemove]));
+      try {
+        localStorage.setItem("shree_deleted_card_ids", JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+
+    setDeleteCandidate(null);
+    if (selectedCard?._id === targetId || (targetCardId && selectedCard?.CardId === targetCardId)) {
+      setSelectedCard(null);
     }
   };
 
@@ -499,17 +532,15 @@ export default function AllCardsPage() {
               <div className="pt-2 flex justify-end gap-2">
                 <button
                   onClick={() => setDeleteCandidate(null)}
-                  disabled={isDeleting}
                   className="px-3 py-1.5 rounded-md text-xs font-medium bg-white border border-slate-300 text-slate-700 hover:bg-slate-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
-                  disabled={isDeleting}
                   className="px-3 py-1.5 rounded-md text-xs font-medium bg-rose-600 text-white hover:bg-rose-700"
                 >
-                  {isDeleting ? "Deleting..." : "Delete Permanently"}
+                  Delete Permanently
                 </button>
               </div>
             </div>

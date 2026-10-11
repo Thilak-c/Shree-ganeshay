@@ -103,6 +103,7 @@ export default function CardGenerator() {
   };
 
   const handleSaveToRegistry = async () => {
+    if (isSaving || savedSuccess) return;
     if (!data.patient.trim()) {
       alert("Please enter the patient name before saving.");
       return;
@@ -415,10 +416,23 @@ export default function CardGenerator() {
               <button
                 type="button"
                 onClick={handleSaveToRegistry}
-                disabled={isSaving}
-                className="w-full inline-flex items-center justify-center gap-2 bg-teal-700 hover:bg-teal-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-medium py-2 px-4 rounded-md text-xs transition-colors shadow-2xs"
+                disabled={isSaving || savedSuccess}
+                className={`w-full inline-flex items-center justify-center gap-2 font-medium py-2 px-4 rounded-md text-xs transition-colors shadow-2xs ${
+                  savedSuccess
+                    ? "bg-emerald-50 text-emerald-800 border border-emerald-300 cursor-default"
+                    : "bg-teal-700 hover:bg-teal-800 disabled:bg-slate-200 disabled:text-slate-400 text-white"
+                }`}
               >
-                <span>{isSaving ? "Saving Record..." : "Save Card to Registry"}</span>
+                {savedSuccess ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Card Saved in Registry</span>
+                  </>
+                ) : isSaving ? (
+                  <span>Saving Record...</span>
+                ) : (
+                  <span>Save Card to Registry</span>
+                )}
               </button>
             </div>
           </div>

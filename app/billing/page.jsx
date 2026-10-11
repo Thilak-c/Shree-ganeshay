@@ -30,7 +30,6 @@ function BillingContent() {
   const cards = useQuery(api.cards.getAllCards);
   const createBill = useMutation(api.billing.createBill);
   const updateBillStatus = useMutation(api.billing.updateBillStatus);
-  const deleteBill = useMutation(api.billing.deleteBill);
 
   const getDefaultDueDate = () => {
     const d = new Date();
@@ -178,12 +177,7 @@ function BillingContent() {
     setDeleteCandidate(null);
 
     try {
-      try {
-        await deleteBill({ id: targetId });
-      } catch {
-        // Fallback to updateBillStatus (cancelled) which is live on Convex Cloud
-        await updateBillStatus({ id: targetId, status: "cancelled" });
-      }
+      await updateBillStatus({ id: targetId, status: "cancelled" });
     } catch (err) {
       console.warn("Backend sync notice for bill deletion:", err);
     }
@@ -286,7 +280,7 @@ function BillingContent() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by patient name, card ID, or procedure..."
+              placeholder="Search by patient name, card ID, or procedure"
               className="w-full bg-white border border-slate-300 text-slate-900 text-xs rounded-md pl-9 pr-3 py-1.5 outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-100"
             />
           </div>
@@ -441,25 +435,37 @@ function BillingContent() {
               </div>
 
               <form onSubmit={handleSubmitBill} className="space-y-3.5 text-xs">
-                {cards && cards.length > 0 && (
-                  <div>
-                    <label className="block text-slate-700 font-medium mb-1">
-                      Link Registered Card (Optional)
-                    </label>
-                    <select
-                      value={newBill.cardId}
-                      onChange={(e) => handleSelectCard(e.target.value)}
-                      className="w-full bg-white border border-slate-300 text-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-teal-600"
-                    >
-                      <option value="">Manual Entry (No Card Linked)</option>
-                      {cards.map((c) => (
-                        <option key={c._id} value={c.CardId}>
-                          {c.patient} — {c.caseId} (Card: {c.CardId})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                {(() => {
+                  const uniqueCards = [];
+                  const seenCardIds = new Set();
+                  (cards || []).forEach((c) => {
+                    if (!c || !c.CardId) return;
+                    if (!seenCardIds.has(c.CardId)) {
+                      seenCardIds.add(c.CardId);
+                      uniqueCards.push(c);
+                    }
+                  });
+
+                  return uniqueCards.length > 0 ? (
+                    <div>
+                      <label className="block text-slate-700 font-medium mb-1">
+                        Link Registered Card (Optional)
+                      </label>
+                      <select
+                        value={newBill.cardId}
+                        onChange={(e) => handleSelectCard(e.target.value)}
+                        className="w-full bg-white border border-slate-300 text-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-teal-600"
+                      >
+                        <option value="">Manual Entry (No Card Linked)</option>
+                        {uniqueCards.map((c) => (
+                          <option key={c._id} value={c.CardId}>
+                            {c.patient} — {c.caseId} (Card: {c.CardId})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : null;
+                })()}
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -473,7 +479,7 @@ function BillingContent() {
                       onChange={(e) =>
                         setNewBill((p) => ({ ...p, patientName: e.target.value }))
                       }
-                      placeholder="e.g. Ramesh Kumar"
+                      placeholder="Patient Name"
                       className="w-full bg-white border border-slate-300 text-slate-900 rounded-md px-3 py-1.5 outline-none focus:border-teal-600"
                     />
                   </div>

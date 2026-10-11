@@ -83,15 +83,7 @@ export default function Navbar() {
               Staff Portal
             </span>
 
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              title="Lock portal and sign out"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-            >
-              <LogOut className="w-3.5 h-3.5 text-slate-500" />
-              <span>{isLoggingOut ? "Signing out..." : "Sign out"}</span>
-            </button>
+            
           </div>
 
           {/* Mobile hamburger */}
