@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Shri Ganesh Dental Lab",
-  description: "Dental Lab Card Generator & Management",
+  title: "Shri Ganesh Dental",
+  description: "Dental Card Generator & Management",
 };
 
 export default function RootLayout({ children }) {

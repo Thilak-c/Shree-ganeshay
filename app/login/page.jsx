@@ -74,7 +74,7 @@ export default function LoginPage() {
         <div className="text-center mb-6">
         
           <h1 className="text-base font-bold text-slate-900 tracking-tight">
-            Shri Ganesh Dental Lab
+            Shri Ganesh Dental
           </h1>
           
         </div>

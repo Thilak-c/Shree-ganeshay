@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Terms & Conditions - Shri Ganesh Dental Lab",
+  title: "Terms & Conditions - Shri Ganesh Dental",
   description:
     "Warranty terms, coverage exclusions, and mandatory conditions for dental restorations and prosthetics.",
 };
@@ -66,7 +66,7 @@ export default function TermsPage() {
             Terms & Conditions
           </h1>
           <p className="text-xs sm:text-sm text-teal-800 font-medium mt-1">
-            Shri Ganesh Dental Lab
+            Shri Ganesh Dental
           </p>
           <div className="mt-3 inline-flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1 rounded-full text-xs font-medium">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -158,7 +158,7 @@ export default function TermsPage() {
       </div>
 
       <footer className="text-center text-[11px] text-slate-400 py-6 mt-6">
-        © {new Date().getFullYear()} Shri Ganesh Dental Lab. All rights reserved.
+        © {new Date().getFullYear()} Shri Ganesh Dental. All rights reserved.
       </footer>
     </div>
   );

@@ -49,7 +49,7 @@ export default function Navbar() {
                   Shri Ganesh
                 </span>
                 <span className="text-[10px] text-teal-700 font-medium tracking-wide uppercase mt-0.5">
-                  Dental Lab
+                  Dental
                 </span>
               </div>
             </Link>

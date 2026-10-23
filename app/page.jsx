@@ -243,7 +243,7 @@ export default function CardGenerator() {
         : "https://shree-ganeshay.vercel.app";
     const url = `${origin}/c/${data.id}`;
     const text = encodeURIComponent(
-      `Hello ${data.patient || "Patient"},\n\nHere is your official Dental Warranty Card from Shri Ganesh Dental Lab:\nCard ID: ${data.id}\nValid Until: ${data.validTo}\n\nVerify certificate: ${url}`
+      `Hello ${data.patient || "Patient"},\n\nHere is your official Dental Warranty Card from Shri Ganesh Dental:\nCard ID: ${data.id}\nValid Until: ${data.validTo}\n\nVerify certificate: ${url}`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
