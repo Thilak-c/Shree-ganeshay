@@ -208,6 +208,11 @@ export default function CardGenerator() {
           ctx.textAlign = "center";
           ctx.fillText("VERIFY ONLINE", 422, 276);
         }
+
+        ctx.fillStyle = "#64748b";
+        ctx.font = "8px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText("*Terms & conditions applied", 250, 292);
       }
 
       const link = document.createElement("a");
@@ -238,7 +243,7 @@ export default function CardGenerator() {
         : "https://shree-ganeshay.vercel.app";
     const url = `${origin}/c/${data.id}`;
     const text = encodeURIComponent(
-      `Hello ${data.patient || "Patient"},\n\nHere is your official Dental Warranty Card from Shree Ganeshay Dental Clinic:\nCard ID: ${data.id}\nValid Until: ${data.validTo}\n\nVerify certificate: ${url}`
+      `Hello ${data.patient || "Patient"},\n\nHere is your official Dental Warranty Card from Shri Ganesh Dental Lab:\nCard ID: ${data.id}\nValid Until: ${data.validTo}\n\nVerify certificate: ${url}`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
@@ -567,6 +572,11 @@ export default function CardGenerator() {
                             <div className="w-16 h-16 bg-slate-100 rounded" />
                           )}
                         </div>
+                      </div>
+
+                      {/* Bottom Center Terms */}
+                      <div className="absolute bottom-1.5 left-0 right-0 text-center text-[8px] text-slate-500 font-medium tracking-wide">
+                        *Terms &amp; conditions applied
                       </div>
                     </div>
                   )}

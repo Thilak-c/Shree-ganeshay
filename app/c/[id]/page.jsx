@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { QRCodeCanvas } from "qrcode.react";
@@ -86,7 +87,7 @@ export default function CardPublicPage() {
         <div className="text-center pb-5 mb-5 border-b border-slate-200">
        
           <h1 className="text-base font-bold text-slate-900 tracking-tight">
-            Shree Ganeshay Dental Clinic
+            Shri Ganesh Dental Lab
           </h1>
           <p className="text-xs text-teal-800 font-medium">
             Dental Prosthetics & Implant Warranty Certificate
@@ -240,7 +241,11 @@ export default function CardPublicPage() {
       </div>
 
       <footer className="text-center text-[11px] text-slate-400 py-6">
-        © {new Date().getFullYear()} Shree Ganeshay Dental Clinic. Terms and conditions apply.
+        © {new Date().getFullYear()} Shri Ganesh Dental Lab.{" "}
+        <Link href="/terms" className="underline hover:text-slate-600 transition-colors">
+          Terms and conditions
+        </Link>{" "}
+        apply.
       </footer>
     </div>
   );

@@ -7,6 +7,7 @@ export async function middleware(request) {
   // Always allow public routes, static assets, and auth APIs
   if (
     pathname.startsWith("/c/") ||
+    pathname.startsWith("/terms") ||
     pathname.startsWith("/api/auth/") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/public") ||

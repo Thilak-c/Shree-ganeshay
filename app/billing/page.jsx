@@ -622,7 +622,7 @@ function BillingContent() {
               <div className="flex justify-between items-start pb-3 border-b border-slate-200">
                 <div>
                   <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                    Shree Ganeshay Dental Clinic
+                    Shri Ganesh Dental Lab
                   </h2>
                   <p className="text-xs text-slate-500">
                     Official Treatment Invoice & Receipt
@@ -711,7 +711,7 @@ function BillingContent() {
               </div>
 
               <p className="text-[10px] text-slate-400 text-center">
-                *Computer-generated receipt issued by Shree Ganeshay Dental Clinic.
+                *Computer-generated receipt issued by Shri Ganesh Dental Lab.
               </p>
 
               <div className="pt-2 flex justify-end gap-2 border-t border-slate-200">

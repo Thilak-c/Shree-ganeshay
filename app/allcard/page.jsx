@@ -114,7 +114,7 @@ export default function AllCardsPage() {
         : "https://shree-ganeshay.vercel.app";
     const url = `${origin}/c/${card.CardId}`;
     const text = encodeURIComponent(
-      `Hello ${card.patient},\n\nYour Dental Warranty Card from Shree Ganeshay Dental Clinic:\nCard ID: ${card.CardId}\nValid Until: ${card.validTo}\n\nView official certificate: ${url}`
+      `Hello ${card.patient},\n\nYour Dental Warranty Card from Shri Ganesh Dental Lab:\nCard ID: ${card.CardId}\nValid Until: ${card.validTo}\n\nView official certificate: ${url}`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };

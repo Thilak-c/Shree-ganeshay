@@ -46,10 +46,10 @@ export default function Navbar() {
              
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-slate-900 tracking-tight leading-none">
-                  Shree Ganeshay
+                  Shri Ganesh
                 </span>
                 <span className="text-[10px] text-teal-700 font-medium tracking-wide uppercase mt-0.5">
-                  Dental Clinic
+                  Dental Lab
                 </span>
               </div>
             </Link>
