@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery } from "convex/react";
@@ -20,6 +21,12 @@ export default function CardPublicPage() {
     api.cards.getCardByCardId,
     cardId ? { cardId: cardId } : "skip"
   );
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.title = "Dental Warranty Certificate";
+    }
+  }, [card]);
 
   const isCardActive = (validTo) => {
     if (!validTo) return true;
@@ -83,11 +90,10 @@ export default function CardPublicPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 sm:p-6 lg:p-8 flex flex-col justify-between">
       <div className="max-w-xl mx-auto w-full">
-        {/* Clinic Header */}
+        {/* Certificate Header */}
         <div className="text-center pb-5 mb-5 border-b border-slate-200">
-       
           <h1 className="text-base font-bold text-slate-900 tracking-tight">
-            Shri Ganesh Dental
+            Dental Warranty Certificate
           </h1>
           <p className="text-xs text-teal-800 font-medium">
             Dental Prosthetics & Implant Warranty Certificate
@@ -217,7 +223,7 @@ export default function CardPublicPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 no-print">
               <button
                 onClick={() => window.print()}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 transition-colors shadow-2xs"
@@ -240,8 +246,8 @@ export default function CardPublicPage() {
         </div>
       </div>
 
-      <footer className="text-center text-[11px] text-slate-400 py-6">
-        © {new Date().getFullYear()} Shri Ganesh Dental.{" "}
+      <footer className="text-center text-[11px] text-slate-400 py-6 no-print">
+        © {new Date().getFullYear()} Dental Registry.{" "}
         <Link href="/terms" className="underline hover:text-slate-600 transition-colors">
           Terms and conditions
         </Link>{" "}

@@ -20,6 +20,10 @@ body {
 }
 
 @media print {
+  @page {
+    margin: 12mm;
+    size: auto;
+  }
   header, nav, button, .no-print {
     display: none !important;
   }
